@@ -1,11 +1,21 @@
 jwt:
-  secret: secretkeyteamprojectAiProMJUsecretkeyteamprojectAiProMJUsecretkeyteamprojectAiProMJUsecretkeyteamprojectAiProMJU
+  secret: ${JWT_SECRET}
 spring:
   datasource:
-    url: ${MYSQL_URL}
-    username: ${MYSQL_USERNAME}
-    password: ${MYSQL_PASSWORD}
+    url: ${MYSQL_URL:jdbc:mysql://localhost:3306/aipro?serverTimezone=Asia/Seoul&characterEncoding=UTF-8}
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:secret}
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+ai:
+  uri: ${AI_URL}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
   jpa:
     hibernate:
       ddl-auto: create
@@ -13,5 +23,22 @@ spring:
     properties:
       hibernate:
         format_sql: true
-ai:
-  uri: https://hongkikii.site:444/query
+
+  docker:
+    compose:
+      file: ./compose-dev.yml
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  docker:
+    compose:
+      enabled: false
