@@ -6,12 +6,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/health")
 public class HealthController {
 
     private final static String HEALTH_CHECK = "Application is running.";
 
-    @GetMapping("/health")
+    @GetMapping
     public ResponseEntity<String> check() {
         return ResponseEntity.ok(HEALTH_CHECK);
     }
