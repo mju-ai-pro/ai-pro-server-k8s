@@ -17,3 +17,7 @@ spring:
 
 ai:
   uri: ${AI_URL}
+
+logging:
+  level:
+    root: debug
