@@ -221,7 +221,6 @@ jobs:
                       initialDelaySeconds: 30
                       periodSeconds: 10
           EOF
-          fi
           
           if ! kubectl get service ai-pro-server-service &>/dev/null; then
           echo "Creating initial service..."
@@ -241,6 +240,7 @@ jobs:
                targetPort: 8080
            type: LoadBalancer
           EOF
+          fi
 
       - name: Check current deployment
         id: check-deployment
