@@ -36,7 +36,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 		throws IOException, ServletException {
 		String path = request.getRequestURI();
 
-		if (path.startsWith("/api/member") || path.startsWith("/api/health")) {
+		if (path.startsWith("/api/member") || path.startsWith("/api/test")) {
 			chain.doFilter(request, response);
 			return;
 		}
