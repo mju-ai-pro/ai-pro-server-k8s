@@ -159,17 +159,17 @@ jobs:
 
       - name: Deploy initial service and blue deployment if not exists
         run: |
-          if ! kubectl get service spring-boot-service &>/dev/null; then
+          if ! kubectl get service ai-pro-server-service &>/dev/null; then
           echo "Creating initial service..."
           cat <<'EOF' | kubectl apply -f -
           apiVersion: v1
           kind: Service
           metadata:
-           name: spring-boot-service
+           name: ai-pro-server-service
            namespace: eks-work
           spec:
            selector:
-             app: spring-boot
+             app: ai-pro-server
              version: blue
            ports:
              - protocol: TCP
@@ -183,21 +183,21 @@ jobs:
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-            name: spring-boot-blue
+            name: ai-pro-server-blue
           spec:
             replicas: 2
             selector:
               matchLabels:
-                app: spring-boot
+                app: ai-pro-server
                 version: blue
             template:
               metadata:
                 labels:
-                  app: spring-boot
+                  app: ai-pro-server
                   version: blue
               spec:
                 containers:
-                  - name: spring-boot
+                  - name: ai-pro-server
                     image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
                     imagePullPolicy: Always
                     ports:
@@ -246,7 +246,7 @@ jobs:
       - name: Check current deployment
         id: check-deployment
         run: |
-          CURRENT_VERSION=$(kubectl get service spring-boot-service -o jsonpath='{.spec.selector.version}')
+          CURRENT_VERSION=$(kubectl get service ai-pro-server-service -o jsonpath='{.spec.selector.version}')
           if [ "$CURRENT_VERSION" = "blue" ]; then
           echo "::set-output name=new_version::green"
           echo "::set-output name=current_version::blue"
@@ -264,21 +264,21 @@ jobs:
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-          name: spring-boot-${NEW_VERSION}
+          name: ai-pro-server-${NEW_VERSION}
           spec:
           replicas: 2
           selector:
            matchLabels:
-             app: spring-boot
+             app: ai-pro-server
              version: ${NEW_VERSION}
           template:
            metadata:
              labels:
-               app: spring-boot
+               app: ai-pro-server
                version: ${NEW_VERSION}
            spec:
              containers:
-             - name: spring-boot
+             - name: ai-pro-server
                image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
                imagePullPolicy: Always
                ports:
