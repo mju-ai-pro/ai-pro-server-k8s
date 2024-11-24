@@ -113,13 +113,210 @@ jobs:
       - name: Build and push Docker image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REGISTRY_ALIAS: ${{ secrets.ECR_REGISTRY_ALIAS }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
-#      - name: Checkout Repository
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
+
+      - name: Create Kubernetes Secrets
+        run: |
+          kubectl create secret generic db-config --dry-run=client -o yaml \
+            --from-literal=db-url="${{ secrets.DB_URL }}" \
+            --from-literal=db-username="${{ secrets.DB_USERNAME }}" \
+            --from-literal=db-password="${{ secrets.DB_PASSWORD }}" | kubectl apply -f -
+
+          kubectl create secret generic app-config --dry-run=client -o yaml \
+            --from-literal=jwt-secret="${{ secrets.JWT_SECRET }}" \
+            --from-literal=ai-url="${{ secrets.AI_URL }}" | kubectl apply -f -
+
+#      - name: Check, Create Namespace if not exists, and Switch Context
+#        run: |
+#          NAMESPACE="eks-work"
+#
+#          if ! kubectl get namespace "$NAMESPACE" &>/dev/null; then
+#          echo "Namespace '$NAMESPACE' does not exist. Creating it now..."
+#          kubectl create namespace "$NAMESPACE"
+#          echo "Namespace '$NAMESPACE' has been created."
+#          else
+#          echo "Namespace '$NAMESPACE' already exists."
+#          fi
+#
+#          echo "Switching to context for namespace '$NAMESPACE'..."
+#          kubectl config set-context --current --namespace="$NAMESPACE"
+#          echo "Context switched to namespace '$NAMESPACE'."
+    
+
+      - name: Deploy initial service and blue deployment if not exists
+        run: |
+          if ! kubectl get service spring-boot-service &>/dev/null; then
+          echo "Creating initial service..."
+          cat <<'EOF' | kubectl apply -f -
+          apiVersion: v1
+          kind: Service
+          metadata:
+           name: spring-boot-service
+           namespace: eks-work
+          spec:
+           selector:
+             app: spring-boot
+             version: blue
+           ports:
+             - protocol: TCP
+               port: 80
+               targetPort: 8080
+           type: LoadBalancer
+          EOF
+          
+          echo "Creating initial blue deployment..."
+          cat <<'EOF' | kubectl apply -f -
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: spring-boot-blue
+          spec:
+            replicas: 2
+            selector:
+              matchLabels:
+                app: spring-boot
+                version: blue
+            template:
+              metadata:
+                labels:
+                  app: spring-boot
+                  version: blue
+              spec:
+                containers:
+                  - name: spring-boot
+                    image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+                    imagePullPolicy: Always
+                    ports:
+                      - containerPort: 8080
+                    env:
+                    - name: DB_URL
+                      valueFrom:
+                        secretKeyRef:
+                          key: db-url
+                          name: db-config
+                    - name: DB_USERNAME
+                      valueFrom:
+                        secretKeyRef:
+                          key: db-username
+                          name: db-config
+                    - name: DB_PASSWORD
+                      valueFrom:
+                        secretKeyRef:
+                          key: db-password
+                          name: db-config
+                    - name: JWT_SECRET
+                      valueFrom:
+                        secretKeyRef:
+                          key: jwt-secret
+                          name: app-config
+                    - name: AI_URL
+                      valueFrom:
+                        secretKeyRef:
+                          key: ai-url
+                          name: app-config
+                    readinessProbe:
+                      httpGet:
+                        path: /api/health
+                        port: 8080
+                      initialDelaySeconds: 15
+                      periodSeconds: 5
+                    livenessProbe:
+                      httpGet:
+                        path: /api/health
+                        port: 8080
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+          EOF
+          fi
+
+      - name: Check current deployment
+        id: check-deployment
+        run: |
+          CURRENT_VERSION=$(kubectl get service spring-boot-service -o jsonpath='{.spec.selector.version}')
+          if [ "$CURRENT_VERSION" = "blue" ]; then
+          echo "::set-output name=new_version::green"
+          echo "::set-output name=current_version::blue"
+          else
+          echo "::set-output name=new_version::blue"
+          echo "::set-output name=current_version::green"
+          fi
+
+      - name: Deploy new version
+        env:
+          NEW_VERSION: ${{ steps.check-deployment.outputs.new_version }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          cat <<EOF | kubectl apply -f -
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+          name: spring-boot-${NEW_VERSION}
+          spec:
+          replicas: 2
+          selector:
+           matchLabels:
+             app: spring-boot
+             version: ${NEW_VERSION}
+          template:
+           metadata:
+             labels:
+               app: spring-boot
+               version: ${NEW_VERSION}
+           spec:
+             containers:
+             - name: spring-boot
+               image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+               imagePullPolicy: Always
+               ports:
+               - containerPort: 8080
+               env:
+               - name: DB_URL
+                 valueFrom:
+                   secretKeyRef:
+                     key: db-url
+                     name: db-config
+               - name: DB_USERNAME
+                 valueFrom:
+                   secretKeyRef:
+                     key: db-username
+                     name: db-config
+               - name: DB_PASSWORD
+                 valueFrom:
+                   secretKeyRef:
+                     key: db-password
+                     name: db-config
+               - name: JWT_SECRET
+                 valueFrom:
+                   secretKeyRef:
+                     key: jwt-secret
+                     name: app-config
+               - name: AI_URL
+                 valueFrom:
+                   secretKeyRef:
+                     key: ai-url
+                     name: app-config
+               readinessProbe:
+                 httpGet:
+                   path: /api/health
+                   port: 8080
+                 initialDelaySeconds: 15
+                 periodSeconds: 5
+               livenessProbe:
+                 httpGet:
+                   path: /api/health
+                   port: 8080
+                 initialDelaySeconds: 30
+                 periodSeconds: 10
+          EOF
+
+        #      - name: Checkout Repository
 #        uses: actions/checkout@v3
 #      - name: Setup Java
 #        uses: actions/setup-java@v3
