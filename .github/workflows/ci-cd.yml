@@ -8,6 +8,10 @@ on:
 env:
   EC2_USERNAME: ubuntu
   AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY }}
+  EKS_CLUSTER: ${{ secrets.AWS_CLUSTER_NAME }}
+  IMAGE_TAG: ${{ github.sha }}
+
 jobs:
   build:
     name: Build and Analyze
@@ -90,71 +94,128 @@ jobs:
     if: success()
     
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-      - name: Setup Java
-        uses: actions/setup-java@v3
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          distribution: 'adopt'
-          java-version: '17'
-      - name: Build with Gradle
-        run: ./gradlew build
-      - name: Check Build Output
-        run: |
-          pwd
-          ls -R
-          ls -la build/libs
-      - name: AWS Authentication
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-region: ${{ env.AWS_REGION }}
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-      - name: Prepare EC2 environment
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_PUBLIC_IP }}
-          username: ${{ env.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            sudo mkdir -p /home/AiPro-Spring
-            sudo chown -R ${{ env.EC2_USERNAME }}:${{ env.EC2_USERNAME }} /home/AiPro-Spring
-            sudo chmod 755 /home/AiPro-Spring
-      - name: Deploy to AWS EC2
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build and push Docker image
         env:
-          EC2_HOST: ${{ secrets.EC2_PUBLIC_IP }}
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          echo "$EC2_SSH_KEY" > private_key && chmod 600 private_key
-          scp -o StrictHostKeyChecking=no -i private_key build/libs/AIPro-0.0.1-SNAPSHOT.jar ${EC2_USERNAME}@${EC2_HOST}:/home/AiPro-Spring/
-          rm -f private_key
-      - name: Restart Application
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_PUBLIC_IP }}
-          username: ${{ env.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            sudo chmod +x /home/AiPro-Spring/AIPro-0.0.1-SNAPSHOT.jar
-            sudo systemctl restart aipro.service
-      
-      - name: Send Deployment Success Notification
-        if: success()
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+#      - name: Checkout Repository
+#        uses: actions/checkout@v3
+#      - name: Setup Java
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: 'adopt'
+#          java-version: '17'
+#      - name: Build with Gradle
+#        run: ./gradlew build
+#      - name: Check Build Output
+#        run: |
+#          pwd
+#          ls -R
+#          ls -la build/libs
+#      - name: AWS Authentication
+#        uses: aws-actions/configure-aws-credentials@v2
+#        with:
+#          aws-region: ${{ env.AWS_REGION }}
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+#      - name: Prepare EC2 environment
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.EC2_PUBLIC_IP }}
+#          username: ${{ env.EC2_USERNAME }}
+#          key: ${{ secrets.EC2_SSH_KEY }}
+#          script: |
+#            sudo mkdir -p /home/AiPro-Spring
+#            sudo chown -R ${{ env.EC2_USERNAME }}:${{ env.EC2_USERNAME }} /home/AiPro-Spring
+#            sudo chmod 755 /home/AiPro-Spring
+#      - name: Deploy to AWS EC2
+#        env:
+#          EC2_HOST: ${{ secrets.EC2_PUBLIC_IP }}
+#          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+#        run: |
+#          echo "$EC2_SSH_KEY" > private_key && chmod 600 private_key
+#          scp -o StrictHostKeyChecking=no -i private_key build/libs/AIPro-0.0.1-SNAPSHOT.jar ${EC2_USERNAME}@${EC2_HOST}:/home/AiPro-Spring/
+#          rm -f private_key
+#      - name: Restart Application
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.EC2_PUBLIC_IP }}
+#          username: ${{ env.EC2_USERNAME }}
+#          key: ${{ secrets.EC2_SSH_KEY }}
+#          script: |
+#            sudo chmod +x /home/AiPro-Spring/AIPro-0.0.1-SNAPSHOT.jar
+#            sudo systemctl restart aipro.service
+
+      - name: Notify deployment status
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DEPLOYMENT_STATUS: ${{ steps.monitor.outputs.deployment_status }}
         run: |
-          MESSAGE="✅ 애플리케이션이 성공적으로 배포되었습니다! : ${GITHUB_REPOSITORY} (${GITHUB_REF})"
-          DETAILS="해당 서버에서 실행 중입니다: https://hongkikii.site"
+          if [ "$DEPLOYMENT_STATUS" == "success" ]; then
+            STATUS="성공 🚀"
+            COLOR="5763719" 
+            DESCRIPTION="✨ 새로운 버전이 성공적으로 배포되었습니다!"
+          else
+            STATUS="실패 ❌"
+            COLOR="15548997"
+            DESCRIPTION="🔄 이전 버전으로 롤백되었습니다."
+          fi
           
-          DATA='{
-            "embeds": [
-              {
-                "title": "배포 성공",
-                "description": "'"${MESSAGE}"'\n\n'"${DETAILS}"'",
-                "color": 65280,
-                "footer": {
-                  "text": "알림"
-                }
-              }
-            ]
-          }'
-      
-          curl -X POST -H 'Content-type:application/json' -d "$DATA" ${{ secrets.DISCORD_WEBHOOK_URL }}
+          DEPLOY_TIME=$(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M:%S')
+          
+          curl -H "Content-Type: application/json" \
+               -d '{
+                 "embeds": [{
+                   "title": "'"📦 배포 $STATUS"'",
+                   "description": "'"$DESCRIPTION"'",
+                   "color": '"$COLOR"',
+                   "fields": [
+                     {
+                       "name": "🏗️ 저장소",
+                       "value": "'"${{ github.repository }}"'",
+                       "inline": true
+                     },
+                     {
+                       "name": "🌿 브랜치",
+                       "value": "'"${GITHUB_REF#refs/heads/}"'",
+                       "inline": true
+                     },
+                     {
+                       "name": "📝 커밋",
+                       "value": "```'"${IMAGE_TAG}"'```",
+                       "inline": false
+                     },
+                     {
+                       "name": "⏰ 배포 시간",
+                       "value": "'"$DEPLOY_TIME"'",
+                       "inline": false
+                     }
+                   ],
+                   "thumbnail": {
+                     "url": "https://github.com/fluidicon.png"
+                   },
+                   "footer": {
+                     "text": "GitHub Actions CI/CD",
+                     "icon_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+                   }
+                 }]
+               }' $DISCORD_WEBHOOK
