@@ -97,7 +97,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v2
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials for ECR
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
@@ -118,9 +118,16 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
+      - name: Configure AWS credentials for EKS
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Update kubeconfig
         run: |
-          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER }} --region ap-northeast-2
+          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER }} --region ${{ env.AWS_REGION }}
 
       - name: Create Kubernetes Secrets
         run: |
