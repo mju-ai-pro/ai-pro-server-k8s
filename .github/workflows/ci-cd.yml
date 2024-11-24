@@ -158,25 +158,6 @@ jobs:
 
       - name: Deploy initial service and blue deployment if not exists
         run: |
-          if ! kubectl get service ai-pro-server-service &>/dev/null; then
-          echo "Creating initial service..."
-          cat <<'EOF' | kubectl apply -f -
-          apiVersion: v1
-          kind: Service
-          metadata:
-           name: ai-pro-server-service
-           namespace: eks-work
-          spec:
-           selector:
-             app: ai-pro-server
-             version: blue
-           ports:
-             - protocol: TCP
-               port: 80
-               targetPort: 8080
-           type: LoadBalancer
-          EOF
-          
           echo "Creating initial blue deployment..."
           cat <<'EOF' | kubectl apply -f -
           apiVersion: apps/v1
@@ -241,6 +222,25 @@ jobs:
                       periodSeconds: 10
           EOF
           fi
+          
+          if ! kubectl get service ai-pro-server-service &>/dev/null; then
+          echo "Creating initial service..."
+          cat <<'EOF' | kubectl apply -f -
+          apiVersion: v1
+          kind: Service
+          metadata:
+           name: ai-pro-server-service
+           namespace: eks-work
+          spec:
+           selector:
+             app: ai-pro-server
+             version: blue
+           ports:
+             - protocol: TCP
+               port: 80
+               targetPort: 8080
+           type: LoadBalancer
+          EOF
 
       - name: Check current deployment
         id: check-deployment
