@@ -194,13 +194,13 @@ jobs:
                           name: app-config
                     readinessProbe:
                       httpGet:
-                        path: /api/health
+                        path: /api/test/health
                         port: 8080
                       initialDelaySeconds: 15
                       periodSeconds: 5
                     livenessProbe:
                       httpGet:
-                        path: /api/health
+                        path: /api/test/health
                         port: 8080
                       initialDelaySeconds: 30
                       periodSeconds: 10
