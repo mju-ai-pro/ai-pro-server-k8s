@@ -262,7 +262,7 @@ jobs:
           apiVersion: apps/v1
           kind: Deployment
           metadata:
-          name: ai-pro-server-${NEW_VERSION}
+            name: ai-pro-server-${NEW_VERSION}
           spec:
           replicas: 2
           selector:
