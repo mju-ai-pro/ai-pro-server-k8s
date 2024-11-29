@@ -264,61 +264,61 @@ jobs:
           metadata:
             name: ai-pro-server-${NEW_VERSION}
           spec:
-          replicas: 2
-          selector:
-           matchLabels:
-             app: ai-pro-server
-             version: ${NEW_VERSION}
-          template:
-           metadata:
-             labels:
-               app: ai-pro-server
-               version: ${NEW_VERSION}
-           spec:
-             containers:
-             - name: ai-pro-server
-               image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
-               imagePullPolicy: Always
-               ports:
-               - containerPort: 8080
-               env:
-               - name: DB_URL
-                 valueFrom:
-                   secretKeyRef:
-                     key: db-url
-                     name: db-config
-               - name: DB_USERNAME
-                 valueFrom:
-                   secretKeyRef:
-                     key: db-username
-                     name: db-config
-               - name: DB_PASSWORD
-                 valueFrom:
-                   secretKeyRef:
-                     key: db-password
-                     name: db-config
-               - name: JWT_SECRET
-                 valueFrom:
-                   secretKeyRef:
-                     key: jwt-secret
-                     name: app-config
-               - name: AI_URL
-                 valueFrom:
-                   secretKeyRef:
-                     key: ai-url
-                     name: app-config
-               readinessProbe:
-                 httpGet:
-                   path: /api/health
-                   port: 8080
-                 initialDelaySeconds: 15
-                 periodSeconds: 5
-               livenessProbe:
-                 httpGet:
-                   path: /api/health
-                   port: 8080
-                 initialDelaySeconds: 30
-                 periodSeconds: 10
+            replicas: 2
+            selector:
+               matchLabels:
+                 app: ai-pro-server
+                 version: ${NEW_VERSION}
+            template:
+             metadata:
+               labels:
+                 app: ai-pro-server
+                 version: ${NEW_VERSION}
+             spec:
+               containers:
+               - name: ai-pro-server
+                 image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+                 imagePullPolicy: Always
+                 ports:
+                 - containerPort: 8080
+                 env:
+                 - name: DB_URL
+                   valueFrom:
+                     secretKeyRef:
+                       key: db-url
+                       name: db-config
+                 - name: DB_USERNAME
+                   valueFrom:
+                     secretKeyRef:
+                       key: db-username
+                       name: db-config
+                 - name: DB_PASSWORD
+                   valueFrom:
+                     secretKeyRef:
+                       key: db-password
+                       name: db-config
+                 - name: JWT_SECRET
+                   valueFrom:
+                     secretKeyRef:
+                       key: jwt-secret
+                       name: app-config
+                 - name: AI_URL
+                   valueFrom:
+                     secretKeyRef:
+                       key: ai-url
+                       name: app-config
+                 readinessProbe:
+                   httpGet:
+                     path: /api/health
+                     port: 8080
+                   initialDelaySeconds: 15
+                   periodSeconds: 5
+                 livenessProbe:
+                   httpGet:
+                     path: /api/health
+                     port: 8080
+                   initialDelaySeconds: 30
+                   periodSeconds: 10
           EOF
 
         #      - name: Checkout Repository
