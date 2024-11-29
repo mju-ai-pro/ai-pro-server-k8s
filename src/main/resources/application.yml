@@ -21,4 +21,4 @@ ai:
 
 logging:
   level:
-    root: info
+    root: debug
