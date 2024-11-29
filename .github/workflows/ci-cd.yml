@@ -308,7 +308,7 @@ jobs:
         env:
           NEW_VERSION: ${{ steps.check-deployment.outputs.new_version }}
         run: |
-          kubectl rollout status deployment/spring-boot-${NEW_VERSION} --timeout=300s
+          kubectl rollout status deployment/ai-pro-server-${NEW_VERSION} --timeout=300s
 
       - name: Verify deployment
         env:
