@@ -357,6 +357,7 @@ jobs:
           
           while [ $SECONDS -lt $END_TIME ]; do
             SERVICE_IP=$(kubectl get service ai-pro-server-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+            echo "SERVICE_IP: $SERVICE_IP"
             
             RESPONSE=$(curl -s -w "\n%{http_code}" http://${SERVICE_IP}/api/test/rollback)
             HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
