@@ -359,7 +359,7 @@ jobs:
             SERVICE_IP=$(kubectl get service ai-pro-server-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
             echo "SERVICE_IP: $SERVICE_IP"
             
-            RESPONSE=$(curl -s -w "\n%{http_code}" http://${SERVICE_IP}/api/test/rollback)
+            RESPONSE=$(curl -s -w "\n%{http_code}" http://acc58a83fc1be4cd08daac5e68c78416-85133570.ap-northeast-2.elb.amazonaws.com/api/test/rollback)
             HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
             HTTP_BODY=$(echo "$RESPONSE" | head -n -1)
             
