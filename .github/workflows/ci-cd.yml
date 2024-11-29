@@ -229,7 +229,6 @@ jobs:
             kind: Service
             metadata:
              name: ai-pro-server-service
-             namespace: eks-work
             spec:
              selector:
                app: ai-pro-server
