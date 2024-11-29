@@ -338,7 +338,7 @@ jobs:
         env:
           NEW_VERSION: ${{ steps.check-deployment.outputs.new_version }}
         run: |
-          kubectl patch service spring-boot-service -p "{\"spec\":{\"selector\":{\"version\":\"${NEW_VERSION}\"}}}"
+          kubectl patch service ai-pro-server-service -p "{\"spec\":{\"selector\":{\"version\":\"${NEW_VERSION}\"}}}"
           echo "Traffic switched to ${NEW_VERSION} version"
         
       - name: Monitor deployment
@@ -356,7 +356,7 @@ jobs:
           END_TIME=$((SECONDS + MONITORING_DURATION))
           
           while [ $SECONDS -lt $END_TIME ]; do
-            SERVICE_IP=$(kubectl get service spring-boot-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+            SERVICE_IP=$(kubectl get service ai-pro-server-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
             
             RESPONSE=$(curl -s -w "\n%{http_code}" http://${SERVICE_IP}/rollback)
             HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
