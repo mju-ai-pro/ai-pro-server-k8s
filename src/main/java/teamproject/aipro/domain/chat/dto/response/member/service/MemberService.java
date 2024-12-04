@@ -1,4 +1,4 @@
-package teamproject.aipro.domain.member.service;
+package teamproject.aipro.domain.chat.dto.response.member.service;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,11 +9,11 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import teamproject.aipro.domain.member.dto.request.LoginRequest;
-import teamproject.aipro.domain.member.dto.request.SignupRequest;
-import teamproject.aipro.domain.member.dto.response.MemberResponse;
-import teamproject.aipro.domain.member.entity.Member;
-import teamproject.aipro.domain.member.repository.MemberRepository;
+import teamproject.aipro.domain.chat.dto.response.member.dto.request.LoginRequest;
+import teamproject.aipro.domain.chat.dto.response.member.dto.request.SignupRequest;
+import teamproject.aipro.domain.chat.dto.response.member.dto.response.MemberResponse;
+import teamproject.aipro.domain.chat.dto.response.member.entity.Member;
+import teamproject.aipro.domain.chat.dto.response.member.repository.MemberRepository;
 
 @Service
 public class MemberService {
