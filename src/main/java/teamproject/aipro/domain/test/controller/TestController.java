@@ -11,9 +11,9 @@ public class TestController {
 
     @GetMapping("/health")
     public ResponseEntity<String> check() {
-        return ResponseEntity.ok("OK");
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//            .body("BAD_REQUEST");
+        // return ResponseEntity.ok("OK");
+       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+           .body("BAD_REQUEST");
     }
 
     @GetMapping("/ver")
