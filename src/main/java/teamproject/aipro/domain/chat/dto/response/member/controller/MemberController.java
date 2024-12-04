@@ -1,4 +1,4 @@
-package teamproject.aipro.domain.member.controller;
+package teamproject.aipro.domain.chat.dto.response.member.controller;
 
 import java.security.Principal;
 import org.springframework.http.HttpStatus;
@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import teamproject.aipro.domain.member.dto.request.LoginRequest;
-import teamproject.aipro.domain.member.dto.request.SignupRequest;
-import teamproject.aipro.domain.member.dto.response.MemberResponse;
-import teamproject.aipro.domain.member.entity.Member;
-import teamproject.aipro.domain.member.service.MemberService;
+import teamproject.aipro.domain.chat.dto.response.member.dto.request.LoginRequest;
+import teamproject.aipro.domain.chat.dto.response.member.dto.request.SignupRequest;
+import teamproject.aipro.domain.chat.dto.response.member.dto.response.MemberResponse;
+import teamproject.aipro.domain.chat.dto.response.member.entity.Member;
+import teamproject.aipro.domain.chat.dto.response.member.service.MemberService;
 
 @RestController
 @CrossOrigin(origins = {"*"})

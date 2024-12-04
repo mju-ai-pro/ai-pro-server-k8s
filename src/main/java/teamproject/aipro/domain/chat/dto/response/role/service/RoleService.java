@@ -1,9 +1,9 @@
-package teamproject.aipro.domain.role.service;
+package teamproject.aipro.domain.chat.dto.response.role.service;
 
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.stereotype.Service;
-import teamproject.aipro.domain.role.dto.response.RoleResponse;
+import teamproject.aipro.domain.chat.dto.response.role.dto.response.RoleResponse;
 
 @Service
 public class RoleService {

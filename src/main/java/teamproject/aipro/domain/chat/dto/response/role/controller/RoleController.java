@@ -1,4 +1,4 @@
-package teamproject.aipro.domain.role.controller;
+package teamproject.aipro.domain.chat.dto.response.role.controller;
 
 import java.security.Principal;
 import org.springframework.http.ResponseEntity;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import teamproject.aipro.domain.role.dto.request.RoleRequest;
-import teamproject.aipro.domain.role.dto.response.RoleResponse;
-import teamproject.aipro.domain.role.service.RoleService;
+import teamproject.aipro.domain.chat.dto.response.role.dto.request.RoleRequest;
+import teamproject.aipro.domain.chat.dto.response.role.dto.response.RoleResponse;
+import teamproject.aipro.domain.chat.dto.response.role.service.RoleService;
 
 @RestController
 @CrossOrigin(origins = {"*"})

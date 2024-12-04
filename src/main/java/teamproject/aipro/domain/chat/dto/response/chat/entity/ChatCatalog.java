@@ -1,4 +1,4 @@
-package teamproject.aipro.domain.chat.entity;
+package teamproject.aipro.domain.chat.dto.response.chat.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
