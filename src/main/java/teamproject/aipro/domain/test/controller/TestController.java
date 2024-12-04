@@ -1,5 +1,6 @@
 package teamproject.aipro.domain.test.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,9 +12,9 @@ public class TestController {
 
     @GetMapping("/health")
     public ResponseEntity<String> check() {
-        return ResponseEntity.ok("OK");
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//            .body("BAD_REQUEST");
+        // return ResponseEntity.ok("OK");
+       return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+           .body("BAD_REQUEST");
     }
 
     @GetMapping("/ver")
