@@ -13,10 +13,20 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
+  check-source-branch:
+    name: Validate PR Source Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is from 'test' branch
+        if: github.event.pull_request.head.ref != 'test'
+        run: |
+          echo "ERROR: Only PRs from the 'test' branch are allowed to merge into 'staging'."
+          exit 1
+  
   deploy:
     name: Deploy to AWS K8S
     runs-on: ubuntu-latest
-    
+    needs: check-source-branch
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
