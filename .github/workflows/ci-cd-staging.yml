@@ -72,7 +72,8 @@ jobs:
 
           kubectl create secret generic app-config --dry-run=client -o yaml \
             --from-literal=jwt-secret="${{ secrets.JWT_SECRET }}" \
-            --from-literal=ai-url="${{ secrets.STAGING_AI_URL }}" | kubectl apply -f -
+            --from-literal=ai-url="${{ secrets.STAGING_AI_URL }}" \
+            --from-literal=ai-summary="${{ secrets.STAGING_AI_SUMMARY }}" | kubectl apply -f -
 
       - name: Deploy initial service and blue deployment if not exists
         run: |
@@ -143,6 +144,11 @@ jobs:
                       valueFrom:
                         secretKeyRef:
                           key: ai-url
+                          name: app-config
+                    - name: STAGING_AI_SUMMARY
+                      valueFrom:
+                        secretKeyRef:
+                          key: ai-summary
                           name: app-config
                     readinessProbe:
                       httpGet:
