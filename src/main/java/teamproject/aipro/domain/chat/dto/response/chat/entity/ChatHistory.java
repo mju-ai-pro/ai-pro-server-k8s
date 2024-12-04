@@ -1,4 +1,4 @@
-package teamproject.aipro.domain.chat.entity;
+package teamproject.aipro.domain.chat.dto.response.chat.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;

@@ -18,6 +18,7 @@ spring:
 
 ai:
   uri: ${AI_URL}
+  summary: ${AI_SUMMARY}
 
 logging:
   level:

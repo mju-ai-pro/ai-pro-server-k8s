@@ -1,4 +1,4 @@
-package teamproject.aipro.domain.chat.dto.request;
+package teamproject.aipro.domain.chat.dto.response.chat.dto.request;
 
 import java.util.List;
 import lombok.Getter;

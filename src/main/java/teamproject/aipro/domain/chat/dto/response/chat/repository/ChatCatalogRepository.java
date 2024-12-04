@@ -1,9 +1,9 @@
-package teamproject.aipro.domain.chat.repository;
+package teamproject.aipro.domain.chat.dto.response.chat.repository;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import teamproject.aipro.domain.chat.entity.ChatCatalog;
+import teamproject.aipro.domain.chat.dto.response.chat.entity.ChatCatalog;
 
 @Repository
 public interface ChatCatalogRepository extends JpaRepository<ChatCatalog, Long> {
