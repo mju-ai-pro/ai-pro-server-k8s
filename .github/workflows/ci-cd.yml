@@ -21,7 +21,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check if push came from test branch merge
+      - name: Check if push came from staging branch merge
         run: |
           LAST_MERGE_COMMIT=$(git log -1 --merges --pretty=format:"%H")
           if [ -n "$LAST_MERGE_COMMIT" ]; then
@@ -39,6 +39,8 @@ jobs:
   build:
     name: Build and Analyze
     runs-on: ubuntu-latest
+    needs: check-source-branch
+    if: success()
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
