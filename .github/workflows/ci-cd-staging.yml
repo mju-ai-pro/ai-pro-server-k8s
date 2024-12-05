@@ -112,7 +112,7 @@ jobs:
              type: LoadBalancer
           EOF
 
-          echo "Creating initial blue deployment..."
+          echo "Creating initial blue deployment...."
           cat <<'EOF' | kubectl apply -f -
           apiVersion: apps/v1
           kind: Deployment
