@@ -218,17 +218,17 @@ jobs:
                  ports:
                  - containerPort: 8080
                  env:
-                 - name: STAGING_DB_URL
+                 - name: DB_URL
                    valueFrom:
                      secretKeyRef:
                        key: db-url
                        name: db-config
-                 - name: STAGING_DB_USERNAME
+                 - name: DB_USERNAME
                    valueFrom:
                      secretKeyRef:
                        key: db-username
                        name: db-config
-                 - name: STAGING_DB_PASSWORD
+                 - name: DB_PASSWORD
                    valueFrom:
                      secretKeyRef:
                        key: db-password
@@ -238,11 +238,16 @@ jobs:
                      secretKeyRef:
                        key: jwt-secret
                        name: app-config
-                 - name: STAGING_AI_URL
+                 - name: AI_URL
                    valueFrom:
                      secretKeyRef:
                        key: ai-url
                        name: app-config
+                 - name: AI_SUMMARY
+                      valueFrom:
+                        secretKeyRef:
+                          key: ai-summary
+                          name: app-config
                  readinessProbe:
                    httpGet:
                      path: /api/test/health
