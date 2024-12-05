@@ -1,8 +1,7 @@
 name: CI CD PRODUCTION
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - production
 
@@ -15,15 +14,27 @@ env:
 
 jobs:
   check-source-branch:
-    if: github.event.pull_request.merged == true
-    name: Validate PR Source Branch
     runs-on: ubuntu-latest
     steps:
-      - name: Check if PR is from 'staging' branch
-        if: github.event.pull_request.head.ref != 'staging'
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Check if push came from test branch merge
         run: |
-          echo "ERROR: Only PRs from the 'staging' branch are allowed to merge into 'production'."
-          exit 1
+          LAST_MERGE_COMMIT=$(git log -1 --merges --pretty=format:"%H")
+          if [ -n "$LAST_MERGE_COMMIT" ]; then
+            MERGE_PARENTS=$(git log -1 --merges --pretty=format:"%P" $LAST_MERGE_COMMIT)
+            SOURCE_BRANCH=$(git name-rev --name-only $(echo $MERGE_PARENTS | cut -d' ' -f2))
+            if [[ $SOURCE_BRANCH != *"staging"* ]]; then
+              echo "ERROR: This merge did not come from the 'staging' branch"
+              exit 1
+            fi
+          else
+            echo "ERROR: This is not a merge commit"
+            exit 1
+          fi
 
   build:
     name: Build and Analyze
