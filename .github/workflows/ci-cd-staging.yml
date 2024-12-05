@@ -244,10 +244,10 @@ jobs:
                        key: ai-url
                        name: app-config
                  - name: AI_SUMMARY
-                      valueFrom:
-                        secretKeyRef:
-                          key: ai-summary
-                          name: app-config
+                   valueFrom:
+                     secretKeyRef:
+                       key: ai-summary
+                       name: app-config
                  readinessProbe:
                    httpGet:
                      path: /api/test/health
