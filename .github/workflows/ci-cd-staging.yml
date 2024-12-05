@@ -27,7 +27,9 @@ jobs:
             echo "last merge commit: $LAST_MERGE_COMMIT"
             if [ -n "$LAST_MERGE_COMMIT" ]; then
               MERGE_PARENTS=$(git log -1 --merges --pretty=format:"%P" $LAST_MERGE_COMMIT)
+              echo "merge parents: $MERGE_PARENTS"
               SOURCE_BRANCH=$(git name-rev --name-only $(echo $MERGE_PARENTS | cut -d' ' -f2))
+              echo "source branch: $SOURCE_BRANCH"
               if [[ $SOURCE_BRANCH != *"test"* ]]; then
                 echo "ERROR: This merge did not come from the 'test' branch"
                 exit 1
