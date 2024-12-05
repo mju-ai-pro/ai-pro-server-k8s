@@ -11,7 +11,10 @@ env:
   AWS_REGION: ap-northeast-2
 jobs:
   check-source-branch:
-    if: github.event.pull_request.merged == true
+    if: |
+        github.event.pull_request.merged == true && 
+        github.event.pull_request.head.ref != 'staging' && 
+        github.event.pull_request.head.ref != 'production'
     name: Validate PR Source Branch
     runs-on: ubuntu-latest
 
