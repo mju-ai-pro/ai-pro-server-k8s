@@ -1,7 +1,8 @@
 name: CI CD
 
 on:
-  push:
+  pull_request_target:
+    types: [closed]
     branches:
       - production
 
@@ -13,6 +14,17 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
+  check-source-branch:
+    if: github.event.pull_request.merged == true
+    name: Validate PR Source Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is from 'staging' branch
+        if: github.event.pull_request.head.ref != 'staging'
+        run: |
+          echo "ERROR: Only PRs from the 'staging' branch are allowed to merge into 'production'."
+          exit 1
+
   build:
     name: Build and Analyze
     runs-on: ubuntu-latest

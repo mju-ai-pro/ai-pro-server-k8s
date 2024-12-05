@@ -1,14 +1,20 @@
 name: CI CD
 
 on:
-  push:
+  pull_request_target:
+    types: [closed]
     branches:
-      - test
+      - staging
 
 env:
   EC2_USERNAME: ubuntu
   AWS_REGION: ap-northeast-2
 jobs:
+  check-source-branch:
+    if: github.event.pull_request.merged == true
+    name: Validate PR Source Branch
+    runs-on: ubuntu-latest
+
   build:
     name: Build and Analyze
     runs-on: ubuntu-latest
