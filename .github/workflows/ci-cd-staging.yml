@@ -13,6 +13,7 @@ env:
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
+<<<<<<< HEAD
   check-source-branch:
     name: Validate PR Source Branch
     runs-on: ubuntu-latest
@@ -27,6 +28,12 @@ jobs:
     name: Deploy to AWS K8S
     runs-on: ubuntu-latest
     needs: check-source-branch
+=======
+  deploy:
+    name: Deploy to AWS K8S
+    runs-on: ubuntu-latest
+    
+>>>>>>> 2689cec (Test (#10))
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -72,8 +79,12 @@ jobs:
 
           kubectl create secret generic app-config --dry-run=client -o yaml \
             --from-literal=jwt-secret="${{ secrets.JWT_SECRET }}" \
+<<<<<<< HEAD
             --from-literal=ai-url="${{ secrets.STAGING_AI_URL }}" \
             --from-literal=ai-summary="${{ secrets.STAGING_AI_SUMMARY }}" | kubectl apply -f -
+=======
+            --from-literal=ai-url="${{ secrets.STAGING_AI_URL }}" | kubectl apply -f -
+>>>>>>> 2689cec (Test (#10))
 
       - name: Deploy initial service and blue deployment if not exists
         run: |
@@ -145,11 +156,14 @@ jobs:
                         secretKeyRef:
                           key: ai-url
                           name: app-config
+<<<<<<< HEAD
                     - name: STAGING_AI_SUMMARY
                       valueFrom:
                         secretKeyRef:
                           key: ai-summary
                           name: app-config
+=======
+>>>>>>> 2689cec (Test (#10))
                     readinessProbe:
                       httpGet:
                         path: /api/test/health
