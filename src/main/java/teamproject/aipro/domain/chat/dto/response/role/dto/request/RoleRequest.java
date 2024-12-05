@@ -1,4 +1,4 @@
-package teamproject.aipro.domain.role.dto.request;
+package teamproject.aipro.domain.chat.dto.response.role.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

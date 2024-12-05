@@ -1,4 +1,4 @@
-package teamproject.aipro.domain.chat.controller;
+package teamproject.aipro.domain.chat.dto.response.chat.controller;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import teamproject.aipro.domain.chat.dto.response.ChatCatalogResponse;
-import teamproject.aipro.domain.chat.dto.response.ChatHistoryResponse;
-import teamproject.aipro.domain.chat.service.ChatHistoryService;
+import teamproject.aipro.domain.chat.dto.response.chat.dto.response.ChatCatalogResponse;
+import teamproject.aipro.domain.chat.dto.response.chat.dto.response.ChatHistoryResponse;
+import teamproject.aipro.domain.chat.dto.response.chat.service.ChatHistoryService;
 
 
 @RestController
