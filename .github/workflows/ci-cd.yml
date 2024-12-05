@@ -1,7 +1,7 @@
 name: CI CD PRODUCTION
 
 on:
-  pull_request_target:
+  pull_request:
     types: [closed]
     branches:
       - production
