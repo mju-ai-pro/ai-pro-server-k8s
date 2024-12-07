@@ -1,23 +1,26 @@
-name: CI CD
+name: CI CD TEST
 
 on:
-  pull_request_target:
-    types: [closed]
+  push:
     branches:
-      - staging
+      - test
 
 env:
   EC2_USERNAME: ubuntu
   AWS_REGION: ap-northeast-2
 jobs:
   check-source-branch:
-    if: github.event.pull_request.merged == true
+    if: |
+        github.event.pull_request.head.ref != 'staging' && 
+        github.event.pull_request.head.ref != 'production'
     name: Validate PR Source Branch
     runs-on: ubuntu-latest
 
   build:
     name: Build and Analyze
     runs-on: ubuntu-latest
+    needs: check-source-branch
+    if: success()
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
