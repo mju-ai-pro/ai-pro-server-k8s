@@ -323,17 +323,10 @@ jobs:
                        key: ai-url
                        name: app-config
                  - name: AI_SUMMARY
-<<<<<<< HEAD
-                   valueFrom:
-                     secretKeyRef:
-                       key: ai-summary
-                       name: app-config
-=======
                       valueFrom:
                         secretKeyRef:
                           key: ai-summary
                           name: app-config
->>>>>>> d6ad929 (chore: production ci-cd 변경)
                  readinessProbe:
                    httpGet:
                      path: /api/test/health
