@@ -11,10 +11,14 @@ env:
 jobs:
   check-source-branch:
     if: |
-        github.event.pull_request.head.ref != 'staging' && 
-        github.event.pull_request.head.ref != 'production'
+      github.event.pull_request.head.ref != 'staging' && 
+      github.event.pull_request.head.ref != 'production'
     name: Validate PR Source Branch
     runs-on: ubuntu-latest
+    steps:
+      - name: Check branch
+        run: |
+          echo "Validating source branch..."
 
   build:
     name: Build and Analyze
