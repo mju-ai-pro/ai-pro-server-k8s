@@ -399,7 +399,7 @@ jobs:
               echo "SERVICE_IP is empty. Using fallback URL."
             fi
             
-            RESPONSE=$(curl -s -w "\n%{http_code}" https://sinjjanggu.site/api/test/rollback)
+            RESPONSE=$(curl -s -w "\n%{http_code}" https://mjuaipro.site/api/test/rollback)
             HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
             HTTP_BODY=$(echo "$RESPONSE" | head -n -1)
             
